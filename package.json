@@ -1,0 +1,29 @@
+{
+  "name": "stagehand-youtube-local",
+  "version": "0.1.0",
+  "description": "POC Stagehand v3 en mode 100 % navigateur local (YouTube / Anthropic)",
+  "scripts": {
+    "start": "tsx src/youtube.ts",
+    "start:agent": "tsx src/youtube-agent.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@browserbasehq/stagehand": "^3.7.3",
+    "dotenv": "^17.4.2",
+    "playwright": "^1.62.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  },
+  "private": true
+}
