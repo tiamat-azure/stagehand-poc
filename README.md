@@ -11,7 +11,7 @@ Specification : [`PRD.md`](./PRD.md).
 1. `page.goto("https://www.youtube.com/")` - deterministe ;
 2. acceptation de la banniere de consentement si presente ;
 3. `observe()` du champ de recherche, puis `act()` pour le focus ;
-4. saisie de `POE 2` et validation par `Enter` - deterministe ;
+4. saisie de `POE2` et validation par `Enter` - deterministe ;
 5. `act()` pour ouvrir la premiere video des resultats ;
 6. verification que l'URL finale est bien une page de lecture.
 
@@ -60,7 +60,7 @@ refuse de demarrer si l'une des deux est presente.
 | Variable            | Defaut                       | Role                                   |
 | ------------------- | ---------------------------- | -------------------------------------- |
 | `ANTHROPIC_API_KEY` | -                            | **Requise.** Cle Anthropic             |
-| `YOUTUBE_QUERY`     | `POE 2`                      | Requete de recherche                   |
+| `YOUTUBE_QUERY`     | `POE2`                       | Requete de recherche                   |
 | `STAGEHAND_MODEL`   | `anthropic/claude-sonnet-4-6`| Modele Stagehand (`provider/model`)    |
 | `HEADLESS`          | `0`                          | `1` pour un run sans fenetre           |
 | `KEEP_OPEN`         | `1`                          | `0` pour fermer le navigateur a la fin |

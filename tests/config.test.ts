@@ -59,7 +59,7 @@ describe("valeurs par defaut", () => {
     delete process.env.YOUTUBE_QUERY;
 
     assert.equal(searchQuery(), DEFAULT_QUERY);
-    assert.equal(DEFAULT_QUERY, "POE 2");
+    assert.equal(DEFAULT_QUERY, "POE2");
   });
 
   it("respecte YOUTUBE_QUERY", () => {

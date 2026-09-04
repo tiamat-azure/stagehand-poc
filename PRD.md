@@ -12,12 +12,12 @@ Le programme doit :
 4. ne nécessiter **aucune `BROWSERBASE_API_KEY`** ni `BROWSERBASE_PROJECT_ID` ;
 5. utiliser une clé `ANTHROPIC_API_KEY` fournie par l'utilisateur ;
 6. ouvrir YouTube ;
-7. effectuer une recherche YouTube sur **`POE 2`** ;
+7. effectuer une recherche YouTube sur **`POE2`** ;
 8. valider la recherche avec Entrée ;
 9. identifier la première vidéo dans les résultats ;
 10. ouvrir/lancer cette première vidéo dans le navigateur.
 
-Le résultat attendu est un navigateur visible à l'écran, ouvert sur YouTube, avec la première vidéo correspondant à la recherche `POE 2` lancée.
+Le résultat attendu est un navigateur visible à l'écran, ouvert sur YouTube, avec la première vidéo correspondant à la recherche `POE2` lancée.
 
 ---
 
@@ -251,10 +251,10 @@ async function main() {
     /*
      * Etape 3 :
      * utiliser Stagehand pour identifier le champ
-     * de recherche YouTube et saisir "POE 2".
+     * de recherche YouTube et saisir "POE2".
      */
     await stagehand.act(
-      'click on the YouTube search field and type "POE 2"'
+      'click on the YouTube search field and type "POE2"'
     );
 
     /*
@@ -330,7 +330,7 @@ Stagehand v3
         youtube.com
              │
              ▼
-          "POE 2"
+          "POE2"
              │
              ▼
           Entrée
@@ -383,7 +383,7 @@ ACTION IA
 stagehand.act()
         │
         ▼
-recherche POE 2
+recherche POE2
         │
         ▼
 ACTION IA
@@ -438,7 +438,7 @@ Puis :
 
 ```typescript
 await stagehand.act(
-  "type POE 2 into the YouTube search box"
+  "type POE2 into the YouTube search box"
 );
 ```
 
@@ -477,7 +477,7 @@ const agent = stagehand.agent({
 await agent.execute({
   instruction: `
     Go to https://www.youtube.com/.
-    Search for "POE 2".
+    Search for "POE2".
     Press Enter.
     Open the first video in the search results.
   `,
@@ -560,7 +560,7 @@ https://www.youtube.com/
 Le programme saisit :
 
 ```text
-POE 2
+POE2
 ```
 
 dans le champ de recherche YouTube.
@@ -651,7 +651,7 @@ Le résultat doit être :
              YouTube
                 │
                 ▼
-             "POE 2"
+             "POE2"
                 │
                 ▼
           première vidéo
@@ -683,7 +683,7 @@ Le navigateur doit alors :
 ```text
 1. s'ouvrir localement
 2. ouvrir YouTube
-3. saisir "POE 2"
+3. saisir "POE2"
 4. appuyer sur Entrée
 5. attendre les résultats
 6. sélectionner la première vidéo

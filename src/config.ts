@@ -14,7 +14,7 @@ const FORBIDDEN_BROWSERBASE_ENV = [
 export const DEFAULT_MODEL = "anthropic/claude-sonnet-4-6";
 
 /** Requete YouTube par defaut (surchargeable via YOUTUBE_QUERY). */
-export const DEFAULT_QUERY = "POE 2";
+export const DEFAULT_QUERY = "POE2";
 
 export const YOUTUBE_URL = "https://www.youtube.com/";
 
