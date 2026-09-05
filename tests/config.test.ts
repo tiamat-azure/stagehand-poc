@@ -99,6 +99,14 @@ describe("buildStagehandOptions", () => {
     assert.equal(buildStagehandOptions("sk-ant-test").localBrowserLaunchOptions?.headless, true);
   });
 
+  it("neutralise le drapeau qui desactive le sandbox Chrome", () => {
+    const options = buildStagehandOptions("sk-ant-test");
+
+    assert.deepEqual(options.localBrowserLaunchOptions?.ignoreDefaultArgs, [
+      "--disable-setuid-sandbox",
+    ]);
+  });
+
   it("transmet la cle Anthropic au modele", () => {
     const options = buildStagehandOptions("sk-ant-test");
 

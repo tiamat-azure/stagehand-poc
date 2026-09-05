@@ -73,9 +73,15 @@ export function buildStagehandOptions(apiKey: string): V3Options {
     localBrowserLaunchOptions: {
       headless: isHeadless(),
       viewport: { width: 1440, height: 900 },
-      // Locale fixe : rend l'interface YouTube reproductible d'une machine a l'autre.
+      // Locale fixe : rend l'interface YouTube reproductible d'une machine a
+      // l'autre. Stagehand en derive lui-meme le drapeau `--lang`.
       locale: "en-US",
-      args: ["--lang=en-US", "--disable-features=Translate"],
+      // chrome-launcher ajoute inconditionnellement `--disable-setuid-sandbox`
+      // sous Linux. Chrome affiche alors en permanence le bandeau
+      // "Vous utilisez une option de ligne de commande non compatible", et
+      // tourne sans son sandbox. L'exclure retablit le sandbox complet et
+      // supprime le bandeau.
+      ignoreDefaultArgs: ["--disable-setuid-sandbox"],
     },
     model: {
       modelName: modelName(),
