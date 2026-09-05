@@ -1,6 +1,7 @@
 import { Stagehand } from "@browserbasehq/stagehand";
 import type { Page } from "@browserbasehq/stagehand";
 import { YOUTUBE_URL } from "./config.js";
+import { requireActivePage } from "./lifecycle.js";
 
 export interface ScenarioResult {
   /** URL finale du navigateur apres ouverture de la video. */
@@ -157,10 +158,7 @@ export async function runYoutubeScenario(
   stagehand: Stagehand,
   query: string,
 ): Promise<ScenarioResult> {
-  const page = stagehand.context.pages()[0];
-  if (!page) {
-    throw new Error("Aucune page disponible dans le contexte Stagehand.");
-  }
+  const page = requireActivePage(stagehand);
 
   step(1, `Ouverture deterministe de ${YOUTUBE_URL}`);
   await page.goto(YOUTUBE_URL, { waitUntil: "domcontentloaded" });

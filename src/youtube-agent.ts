@@ -18,7 +18,11 @@ import {
   searchQuery,
   YOUTUBE_URL,
 } from "./config.js";
-import { holdUntilShutdown } from "./lifecycle.js";
+import {
+  holdUntilShutdown,
+  reportFailure,
+  requireActivePage,
+} from "./lifecycle.js";
 import { isWatchUrl } from "./scenario.js";
 
 /** Garde-fou : nombre maximal d'etapes accordees a la boucle agentique. */
@@ -57,14 +61,15 @@ async function main(): Promise<void> {
       maxSteps: MAX_STEPS,
     });
 
-    const page = stagehand.context.pages()[0];
-    const finalUrl = page?.url() ?? "";
+    // La boucle agentique peut rendre la main alors que la session a disparu
+    // (fenetre fermee a la main) : on le detecte avant d'exploiter la page.
+    const finalUrl = requireActivePage(stagehand).url();
     const isWatchPage = isWatchUrl(finalUrl);
 
     console.log("\nAgent termine.");
     console.log(`  succes     : ${result.success}`);
     console.log(`  message    : ${result.message}`);
-    console.log(`  URL finale : ${finalUrl || "n/a"}`);
+    console.log(`  URL finale : ${finalUrl}`);
     console.log(`  Lecture    : ${isWatchPage ? "OK" : "NON CONFIRMEE"}`);
 
     if (!result.success) {
@@ -73,7 +78,7 @@ async function main(): Promise<void> {
 
     if (!isWatchPage) {
       throw new Error(
-        `La page finale n'est pas une page de lecture YouTube : ${finalUrl || "n/a"}`,
+        `La page finale n'est pas une page de lecture YouTube : ${finalUrl}`,
       );
     }
 
@@ -84,7 +89,5 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error("\nEchec de la variante agentique :");
-  console.error(error);
-  process.exit(1);
+  reportFailure("Variante agentique", error);
 });

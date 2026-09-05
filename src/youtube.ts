@@ -6,7 +6,7 @@ import {
   modelName,
   searchQuery,
 } from "./config.js";
-import { holdUntilShutdown } from "./lifecycle.js";
+import { holdUntilShutdown, reportFailure } from "./lifecycle.js";
 import { runYoutubeScenario } from "./scenario.js";
 
 async function main(): Promise<void> {
@@ -44,7 +44,5 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error("\nEchec du scenario :");
-  console.error(error);
-  process.exit(1);
+  reportFailure("Scenario deterministe", error);
 });
