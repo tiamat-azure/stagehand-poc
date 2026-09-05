@@ -22,6 +22,19 @@ const CONSENT_MARKER = "data-poc-consent";
 /** Duree max de sondage de la banniere de consentement. */
 const CONSENT_POLL_TIMEOUT_MS = 8000;
 
+/**
+ * Champ de recherche YouTube. Repere le plus fiable de la fin du chargement :
+ * present quelle que soit la locale, absent tant que l'application n'a pas
+ * reconstruit son en-tete.
+ */
+const SEARCH_INPUT_SELECTOR = 'input[name="search_query"]';
+
+/** Duree max d'attente de la reconstruction de la page apres navigation. */
+const PAGE_READY_TIMEOUT_MS = 20000;
+
+/** Intervalle de sondage commun aux boucles d'attente. */
+const POLL_INTERVAL_MS = 400;
+
 /** Libelles du bouton "tout accepter" dans les locales les plus courantes. */
 const CONSENT_LABELS =
   "accept all|tout accepter|alle akzeptieren|aceptar todo|accetta tutto|alles accepteren";
@@ -57,10 +70,46 @@ async function markConsentButton(
     }, CONSENT_LABELS);
 
     if (marked) return true;
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(POLL_INTERVAL_MS);
   } while (Date.now() < deadline);
 
   return false;
+}
+
+/**
+ * Attend que la page soit reellement exploitable apres une navigation.
+ *
+ * `waitForLoadState()` seul ne suffit pas : il rend la main sur l'ancien
+ * document quand celui-ci est deja charge, alors que le clic de consentement
+ * declenche un rechargement complet de YouTube. Pendant cette bascule le
+ * contexte d'execution est detruit (`page.evaluate` leve), puis l'application
+ * reconstruit son DOM et son arbre d'accessibilite. Sans cette attente,
+ * `observe()` interroge un arbre encore vide et ne renvoie aucun element.
+ */
+async function waitForPageReady(page: Page, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  let lastError: unknown;
+
+  do {
+    try {
+      const ready = await page.evaluate<boolean, string>(
+        (selector) =>
+          document.readyState === "complete" &&
+          document.querySelector(selector) !== null,
+        SEARCH_INPUT_SELECTOR,
+      );
+      if (ready) return;
+    } catch (error) {
+      // Contexte d'execution detruit par la navigation en cours : on retente.
+      lastError = error;
+    }
+    await page.waitForTimeout(POLL_INTERVAL_MS);
+  } while (Date.now() < deadline);
+
+  throw new Error(
+    `La page YouTube n'est pas redevenue exploitable en ${timeoutMs} ms.` +
+      (lastError ? ` Derniere erreur : ${String(lastError)}` : ""),
+  );
 }
 
 /**
@@ -91,8 +140,9 @@ async function dismissConsentIfPresent(
     await stagehand.act(actions[0]!);
   }
 
-  await page.waitForLoadState("domcontentloaded");
-  await page.waitForTimeout(2000);
+  // Le consentement recharge la page : on attend sa reconstruction complete
+  // avant de rendre la main aux etapes qui interrogent le DOM.
+  await waitForPageReady(page, PAGE_READY_TIMEOUT_MS);
 }
 
 /**
@@ -114,7 +164,7 @@ export async function runYoutubeScenario(
 
   step(1, `Ouverture deterministe de ${YOUTUBE_URL}`);
   await page.goto(YOUTUBE_URL, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(2000);
+  await waitForPageReady(page, PAGE_READY_TIMEOUT_MS);
 
   step(2, "Verification de la banniere de consentement");
   await dismissConsentIfPresent(stagehand, page);
