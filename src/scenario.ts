@@ -11,6 +11,11 @@ export interface ScenarioResult {
   isWatchPage: boolean;
 }
 
+/** Vrai si l'URL correspond a une page de lecture YouTube. */
+export function isWatchUrl(url: string): boolean {
+  return /youtube\.com\/(watch|shorts)/.test(url);
+}
+
 /** Attribut temporaire pose sur le bouton de consentement pour le cibler. */
 const CONSENT_MARKER = "data-poc-consent";
 
@@ -148,6 +153,6 @@ export async function runYoutubeScenario(
   return {
     finalUrl,
     title,
-    isWatchPage: /youtube\.com\/(watch|shorts)/.test(finalUrl),
+    isWatchPage: isWatchUrl(finalUrl),
   };
 }

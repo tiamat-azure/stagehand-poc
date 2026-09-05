@@ -50,6 +50,7 @@ refuse de demarrer si l'une des deux est presente.
 | `make status`    | Indique si le POC tourne                                          |
 | `make logs`      | Suit `.run/poc.log`                                               |
 | `make headless`  | Execution au premier plan sans fenetre, fermeture automatique     |
+| `make ... agent` | Suffixe `agent` : joue la variante agentique au lieu du scenario deterministe |
 | `make test`      | `tsc --noEmit` puis tests unitaires (`node --test`)               |
 | `make clean`     | Supprime `.run/`                                                  |
 
@@ -66,25 +67,38 @@ refuse de demarrer si l'une des deux est presente.
 | `KEEP_OPEN`         | `1`                          | `0` pour fermer le navigateur a la fin |
 | `STAGEHAND_VERBOSE` | `1`                          | Verbosite Stagehand (`0`, `1`, `2`)    |
 
-## Variante agentique
+## Les deux scenarios
 
-La section 11 du PRD (boucle agentique complete) est implementee dans
-`src/youtube-agent.ts` :
+| Scenario | Fichier | Principe |
+| -------- | ------- | -------- |
+| **deterministe** (defaut) | `src/youtube.ts` | `goto` + saisie clavier, LLM limite a `observe()` / `act()` sur les elements instables |
+| **agentique** (PRD section 11) | `src/youtube-agent.ts` | scenario entierement delegue a la boucle agentique Stagehand |
+
+Le suffixe `agent` bascule n'importe quelle cible de lancement :
 
 ```bash
-npm run start:agent
+make start              # deterministe, en arriere-plan
+make start agent        # agentique, en arriere-plan (make stop / logs / status inchanges)
+make headless           # deterministe, sans fenetre
+make headless agent     # agentique, sans fenetre
 ```
 
-Moins deterministe que la voie principale, elle sert de base a l'evolution
-decrite en section 17.
+GNU make refuse les options inconnues (`make start --agent` echoue) : le
+modificateur est donc un but supplementaire, sans effet propre.
+
+Les deux points d'entree partagent le meme contrat : verification de la page de
+lecture finale, respect de `KEEP_OPEN`, code de sortie non nul en cas d'echec.
+La voie agentique reste moins deterministe et sert de base a l'evolution
+decrite en section 17 du PRD.
 
 ## Structure
 
 ```
 src/config.ts          # validation d'environnement + options Stagehand
-src/scenario.ts        # scenario YouTube (goto / observe / act)
-src/youtube.ts         # entrypoint principal, gestion du cycle de vie
-src/youtube-agent.ts   # variante agentique (PRD section 11)
+src/lifecycle.ts       # cycle de vie partage (KEEP_OPEN, signaux d'arret)
+src/scenario.ts        # scenario YouTube deterministe (goto / observe / act)
+src/youtube.ts         # entrypoint deterministe
+src/youtube-agent.ts   # entrypoint agentique (PRD section 11)
 scripts/poc.sh         # start / stop / status / logs
 tests/                 # tests unitaires (config + garde anti-Browserbase)
 ```

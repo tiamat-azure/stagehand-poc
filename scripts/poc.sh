@@ -11,6 +11,10 @@ RUN_DIR="${ROOT_DIR}/.run"
 PID_FILE="${RUN_DIR}/poc.pid"
 LOG_FILE="${RUN_DIR}/poc.log"
 
+# Script npm a jouer : "start" (deterministe) ou "run start:agent" (agentique).
+# Renseigne par le Makefile ; non quote a l'appel car il vaut deux mots.
+NPM_START="${NPM_START:-start}"
+
 log() { printf '%s\n' "$*" >&2; }
 
 running_pid() {
@@ -42,7 +46,8 @@ cmd_start() {
 
   # setsid : nouveau groupe de processus => stop peut tuer Chromium avec.
   # stdbuf -oL : garde les logs applicatifs et Stagehand dans l'ordre reel.
-  setsid stdbuf -oL env KEEP_OPEN=1 npm --prefix "${ROOT_DIR}" start \
+  # shellcheck disable=SC2086 # NPM_START doit se decouper en mots.
+  setsid stdbuf -oL env KEEP_OPEN=1 npm --prefix "${ROOT_DIR}" ${NPM_START} \
     >>"${LOG_FILE}" 2>&1 < /dev/null &
   local pid=$!
   echo "${pid}" > "${PID_FILE}"

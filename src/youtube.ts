@@ -6,30 +6,15 @@ import {
   modelName,
   searchQuery,
 } from "./config.js";
+import { holdUntilShutdown } from "./lifecycle.js";
 import { runYoutubeScenario } from "./scenario.js";
-
-/**
- * Maintient le processus vivant jusqu'a SIGINT/SIGTERM.
- * Permet a `make stop` de fermer le navigateur a la demande.
- */
-function waitForShutdownSignal(): Promise<NodeJS.Signals> {
-  return new Promise((resolve) => {
-    const onSignal = (signal: NodeJS.Signals) => {
-      process.off("SIGINT", onSignal);
-      process.off("SIGTERM", onSignal);
-      resolve(signal);
-    };
-    process.once("SIGINT", onSignal);
-    process.once("SIGTERM", onSignal);
-  });
-}
 
 async function main(): Promise<void> {
   const apiKey = assertLocalOnlyEnvironment();
   const query = searchQuery();
-  const keepOpen = process.env.KEEP_OPEN !== "0";
 
   console.log("Stagehand v3 - POC navigateur local");
+  console.log(`  scenario       : deterministe (observe/act cibles)`);
   console.log(`  env            : LOCAL (disableAPI: true)`);
   console.log(`  modele         : ${modelName()}`);
   console.log(`  headless       : ${isHeadless()}`);
@@ -52,13 +37,7 @@ async function main(): Promise<void> {
       );
     }
 
-    if (keepOpen) {
-      console.log(
-        "\nNavigateur laisse ouvert. Utilisez `make stop` (ou Ctrl+C) pour le fermer.",
-      );
-      const signal = await waitForShutdownSignal();
-      console.log(`\nSignal ${signal} recu, fermeture du navigateur.`);
-    }
+    await holdUntilShutdown();
   } finally {
     await stagehand.close();
   }
